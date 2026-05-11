@@ -1,0 +1,17 @@
+@baseUrl = http://localhost:3000
+
+### Assinar newsletter
+POST {{baseUrl}}/newsletter/assinar
+Content-Type: application/json
+
+{
+  "email": "vanessa@gmail.com"
+}
+
+### Cancelar newsletter
+POST {{baseUrl}}/newsletter/cancelar
+Content-Type: application/json
+
+{
+  "email": "vanessa@gmail.com"
+}

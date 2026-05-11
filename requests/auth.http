@@ -1,0 +1,20 @@
+@baseUrl = http://localhost:3000
+
+### Cadastrar usuário
+POST {{baseUrl}}/auth/cadastrar
+Content-Type: application/json
+
+{
+  "username": "lrodrigues",
+  "email": "lrodrigues@gmail.com",
+  "senha": "12345678"
+}
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "lrodrigues",
+  "senha": "12345678"
+}
