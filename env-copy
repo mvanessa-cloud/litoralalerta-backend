@@ -1,0 +1,17 @@
+# Backend
+PORT=3000
+NODE_ENV=development
+
+# Frontend
+ORIGIN=http://localhost:5173
+
+# Auth
+JWT_SECRET="mysecret"
+
+# Database
+DATABASE_URL="mysql://root:aluno@localhost:3306/litoralalertabd"
+DATABASE_HOST="localhost"
+DATABASE_PORT=3306
+DATABASE_NAME="litoralalertabd"
+DATABASE_USER="root"
+DATABASE_PASS="aluno"
