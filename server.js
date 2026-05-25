@@ -4,6 +4,7 @@ import express from "express";
 
 import authRoutes from "./routes/auth.js";
 import newsletterRoutes from "./routes/newsletter.js";
+import newsRoutes from "./routes/news.js";
 
 // Environment variables
 const PORT = process.env.PORT;
@@ -20,6 +21,7 @@ app.use(express.static("public"));
 // Routes
 app.use("/auth", authRoutes);
 app.use("/newsletter", newsletterRoutes);
+app.use("/noticias", newsRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
