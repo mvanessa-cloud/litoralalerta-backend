@@ -79,4 +79,40 @@ router.post("/login", async (req, res) => {
     res.json(usuarioSemSenha);
 });
 
+// POST /auth/logout
+router.post("/logout", (req, res) => {
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: IS_PROD,
+        sameSite: IS_PROD ? "strict" : "lax",
+    });
+    res.json({ message: "Logout realizado com sucesso" });
+});
+ 
+// GET /auth/me
+router.get("/me", (req, res) => {
+    const token = req.cookies?.token;
+ 
+    if (!token) {
+        return res.status(401).json({ error: "Não autenticado" });
+    }
+ 
+    try {
+        const payload = jwt.verify(token, SECRET);
+ 
+        // Busca os dados atualizados do usuário no banco
+        prisma.usuario.findUnique({
+            where: { id: payload.id },
+            omit: { senha: true },
+        }).then(usuario => {
+            if (!usuario) return res.status(401).json({ error: "Usuário não encontrado" });
+            res.json(usuario);
+        });
+ 
+    } catch {
+        res.status(401).json({ error: "Token inválido ou expirado" });
+    }
+});
+
+
 export default router;

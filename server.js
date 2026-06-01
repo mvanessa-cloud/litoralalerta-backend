@@ -14,7 +14,7 @@ const ORIGIN = process.env.ORIGIN;
 const app = express();
 
 // Middleware
-app.use(cors({ origin: ORIGIN }));
+app.use(cors({ origin: ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(express.static("public"));
 
