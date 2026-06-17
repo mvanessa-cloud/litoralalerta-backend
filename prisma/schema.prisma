@@ -7,77 +7,76 @@ datasource db {
   provider = "mysql"
 }
 
-model Usuario {
-  id           Int      @id @default(autoincrement()) @db.UnsignedInt
-  username     String   @unique @db.VarChar(255)
-  nome         String?  @db.VarChar(50)
-  fotoPerfil   String?  @db.VarChar(255)
-  email        String?  @db.VarChar(255)
-  senha        String?  @db.VarChar(80)
-  tipo         String?  @db.VarChar(45)
-  bio          String?  @db.VarChar(255)
-  local        String?  @db.VarChar(50)
-  dataCadastro DateTime @default(now()) @db.Timestamp(0)
+model comentario {
+  id           Int        @id @default(autoincrement())
+  conteudo     String     @db.Text
+  data         DateTime   @default(now()) @db.Timestamp(0)
+  usuarioId    Int        @db.UnsignedInt
+  publicacaoId Int        @db.UnsignedInt
+  publicacao   publicacao @relation(fields: [publicacaoId], references: [id], map: "Comentario_publicacaoId_fkey")
+  usuario      usuario    @relation(fields: [usuarioId], references: [id], map: "Comentario_usuarioId_fkey")
 
-  publicacoes Publicacao[]
-  curtidas    Curtir[]
-  comentarios Comentario[]
-  seguindo    Seguir[]     @relation("Seguidor")
-  seguidores  Seguir[]     @relation("Seguido")
+  @@index([publicacaoId], map: "Comentario_publicacaoId_fkey")
+  @@index([usuarioId], map: "Comentario_usuarioId_fkey")
 }
 
-model Publicacao {
-  id             Int      @id @default(autoincrement()) @db.UnsignedInt
-  resumo         String?  @db.VarChar(255)
-  slug           String?  @db.VarChar(255)
-  conteudo       String?  @db.Text
-  fotoCapa       String?  @db.VarChar(255)
-  acessos        Int      @default(0)
-  tipo           String?  @db.VarChar(45)
-  dataPublicacao DateTime @default(now()) @db.Timestamp(0)
-  usuarioId      Int      @db.UnsignedInt
-
-  usuario     Usuario      @relation(fields: [usuarioId], references: [id])
-  curtidas    Curtir[]
-  comentarios Comentario[]
-}
-
-model Curtir {
-  publicacaoId Int      @db.UnsignedInt
-  usuarioId    Int      @db.UnsignedInt
-  data         DateTime @default(now()) @db.Timestamp(0)
-
-  publicacao Publicacao @relation(fields: [publicacaoId], references: [id])
-  usuario    Usuario    @relation(fields: [usuarioId], references: [id])
+model curtir {
+  publicacaoId Int        @db.UnsignedInt
+  usuarioId    Int        @db.UnsignedInt
+  data         DateTime   @default(now()) @db.Timestamp(0)
+  publicacao   publicacao @relation(fields: [publicacaoId], references: [id], map: "Curtir_publicacaoId_fkey")
+  usuario      usuario    @relation(fields: [usuarioId], references: [id], map: "Curtir_usuarioId_fkey")
 
   @@id([publicacaoId, usuarioId])
+  @@index([usuarioId], map: "Curtir_usuarioId_fkey")
 }
 
-model Comentario {
+model newsletter {
   id           Int      @id @default(autoincrement())
-  conteudo     String   @db.Text
-  data         DateTime @default(now()) @db.Timestamp(0)
-  usuarioId    Int      @db.UnsignedInt
-  publicacaoId Int      @db.UnsignedInt
-
-  usuario    Usuario    @relation(fields: [usuarioId], references: [id])
-  publicacao Publicacao @relation(fields: [publicacaoId], references: [id])
+  email        String   @unique(map: "Newsletter_email_key") @db.VarChar(255)
+  ativo        Boolean  @default(true)
+  dataCadastro DateTime @default(now()) @db.Timestamp(0)
 }
 
-model Seguir {
+model publicacao {
+  id             Int          @id @default(autoincrement()) @db.UnsignedInt
+  resumo         String?      @db.VarChar(255)
+  slug           String?      @db.VarChar(255)
+  conteudo       String?      @db.Text
+  fotoCapa       String?      @db.VarChar(255)
+  acessos        Int          @default(0)
+  tipo           String?      @db.VarChar(45)
+  dataPublicacao DateTime     @default(now()) @db.Timestamp(0)
+  usuarioId      Int          @db.UnsignedInt
+  comentario     comentario[]
+  curtir         curtir[]
+  usuario        usuario      @relation(fields: [usuarioId], references: [id], map: "Publicacao_usuarioId_fkey")
+
+  @@index([usuarioId], map: "Publicacao_usuarioId_fkey")
+}
+
+model seguir {
   seguidorId Int      @db.UnsignedInt
   seguidoId  Int      @db.UnsignedInt
   data       DateTime @default(now()) @db.Timestamp(0)
-
-  seguidor Usuario @relation("Seguidor", fields: [seguidorId], references: [id])
-  seguido  Usuario @relation("Seguido", fields: [seguidoId], references: [id])
+  usuario    usuario  @relation(fields: [seguidorId], references: [id], map: "Seguir_seguidorId_fkey")
 
   @@id([seguidorId, seguidoId])
 }
 
-model Newsletter {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique @db.VarChar(255)
-  ativo        Boolean  @default(true)
-  dataCadastro DateTime @default(now()) @db.Timestamp(0)
+model usuario {
+  id           Int          @id @default(autoincrement()) @db.UnsignedInt
+  username     String       @unique(map: "Usuario_username_key") @db.VarChar(255)
+  nome         String?      @db.VarChar(50)
+  fotoPerfil   String?      @db.VarChar(255)
+  email        String?      @db.VarChar(255)
+  senha        String?      @db.VarChar(80)
+  tipo         String?      @db.VarChar(45)
+  bio          String?      @db.VarChar(255)
+  local        String?      @db.VarChar(50)
+  dataCadastro DateTime     @default(now()) @db.Timestamp(0)
+  comentario   comentario[]
+  curtir       curtir[]
+  publicacao   publicacao[]
+  seguir       seguir[]
 }

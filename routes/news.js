@@ -84,4 +84,20 @@ router.get("/:slug", async (req, res, next) => {
     }
 });
 
+router.post("/", async (req, res, next) => {
+  try {
+    const noticia = await prisma.publicacao.create({
+      data: {
+        ...req.body,
+        tipo: "noticia",
+        usuarioId: 2
+      }
+    });
+
+    res.status(201).json(noticia);
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
