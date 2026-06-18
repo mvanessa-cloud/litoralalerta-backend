@@ -197,4 +197,67 @@ router.delete("/:id", autenticar, podePublicar, async (req, res, next) => {
     }
 });
 
+// PUT /noticias/:id — atualiza uma notícia existente
+router.put("/:id", autenticar, podePublicar, (req, res, next) => {
+    uploadFotoCapa(req, res, async (err) => {
+        if (err) {
+            return res.status(400).json({ error: err.message || "Erro ao enviar a imagem." });
+        }
+
+        try {
+            const id = Number(req.params.id);
+
+            if (!Number.isInteger(id)) {
+                return res.status(400).json({ error: "ID inválido." });
+            }
+
+            // Busca a notícia no banco
+            const noticia = await prisma.publicacao.findFirst({
+                where: { id, tipo: "noticia" },
+            });
+
+            if (!noticia) {
+                return res.status(404).json({ error: "Notícia não encontrada." });
+            }
+
+            // Editor só pode editar as próprias notícias
+            if (req.usuario.tipo !== "admin" && noticia.usuarioId !== req.usuario.id) {
+                return res.status(403).json({ error: "Você só pode editar suas próprias notícias." });
+            }
+
+            const { titulo, resumo, conteudo } = req.body;
+
+            // Monta os dados a atualizar
+            const dadosAtualizados = {};
+
+            if (resumo) dadosAtualizados.resumo = resumo;
+            if (conteudo) dadosAtualizados.conteudo = conteudo;
+
+            // Se veio um novo título, regera o slug
+            if (titulo && titulo.trim()) {
+                dadosAtualizados.slug = await gerarSlugUnico(titulo);
+            }
+
+            // Se veio nova imagem, atualiza e apaga a antiga do disco
+            if (req.file) {
+                dadosAtualizados.fotoCapa = `fotos/${req.file.filename}`;
+
+                if (noticia.fotoCapa) {
+                    const caminhoAntigo = path.join(process.cwd(), "public", noticia.fotoCapa);
+                    fs.unlink(caminhoAntigo, () => {});
+                }
+            }
+
+            const noticiaAtualizada = await prisma.publicacao.update({
+                where: { id },
+                data: dadosAtualizados,
+            });
+
+            res.json(noticiaAtualizada);
+        } catch (err) {
+            next(err);
+        }
+    });
+});
+
 export default router;
