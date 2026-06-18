@@ -1,6 +1,7 @@
 import "dotenv/config";
 import cors from "cors";
 import express from "express";
+import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/auth.js";
 import newsletterRoutes from "./routes/newsletter.js";
@@ -15,6 +16,7 @@ const app = express();
 
 // Middleware
 app.use(cors({ origin: ORIGIN, credentials: true }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("public"));
 
